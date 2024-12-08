@@ -1,0 +1,3 @@
+pyfluidsynth==1.3.4
+black==24.10.0
+pylint==3.3.1

@@ -1,1 +1,4 @@
-# midway3
+# Midway3
+
+### Thoughts
+- seq
