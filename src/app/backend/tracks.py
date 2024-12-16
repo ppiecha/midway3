@@ -1,6 +1,8 @@
-from collections import defaultdict
 from functools import wraps
 from typing import NamedTuple, Iterable, Set, Callable
+from src.app.utils.logger import get_console_logger
+
+logger = get_console_logger(__name__)
 
 
 class Notes(NamedTuple):
@@ -18,10 +20,11 @@ class TrackArgs(NamedTuple):
     preset: int = 0
 
 def track_wrapper():
-    tracks = defaultdict(list)
-    def outer(channel: str, font: str, bank: int = 0, preset: int = 0):
+    tracks = {}
+
+    def track_outer(channel: str, font: str, bank: int = 0, preset: int = 0):
         def decorator(fn):
-            tracks[fn.__name__].append(TrackArgs(fn.__name__, channel, font, fn, bank, preset))
+            tracks[fn.__name__] = TrackArgs(fn.__name__, channel, font, fn, bank, preset)
             @wraps(fn)
             def inner(*args, **kwargs):
                 return fn(*args, **kwargs)
@@ -29,14 +32,23 @@ def track_wrapper():
         return decorator
 
     def channels_decorator(fn):
-        outer.channels_map_func = fn
+        track_outer.channels_map_func = fn
         @wraps(fn)
         def inner(*args, **kwargs):
             return fn(*args, **kwargs)
         return inner
 
-    outer.tracks = tracks
-    outer.channels = channels_decorator
-    return outer
+    def soundfonts_decorator(fn):
+        track_outer.soundfonts_map_func = fn
+        @wraps(fn)
+        def inner(*args, **kwargs):
+            return fn(*args, **kwargs)
+        return inner
+
+    track_outer.tracks = tracks
+    track_outer.channels = channels_decorator
+    track_outer.soundfonts = soundfonts_decorator
+
+    return track_outer
 
 track = track_wrapper()
