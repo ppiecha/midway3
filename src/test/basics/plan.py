@@ -21,74 +21,69 @@ logger = get_console_logger(__name__)
 # @midi(kind = 'track', name = 'track1', channel = 0, font = 'defined1', bank = 0, preset = 0)
 # controls
 
+
 class TrackOpt(NamedTuple):
     name: str
     channel: int = 0
-    font: str = 'default'
+    font: str = "default"
     bank: int = 0
     preset: int = 0
     active: bool = True
 
+
 def track():
     midi_dict = defaultdict(list)
-    def midi_track(channel: str = 'piano', font: str = "default", bank: int = 0, preset: int = 0, active: bool = True):
+
+    def midi_track(channel: str = "piano", font: str = "default", bank: int = 0, preset: int = 0, active: bool = True):
         def decorator(fn):
             midi_dict[(channel, font, bank, preset, active)].append(fn)
+
             @wraps(fn)
             def inner(*args, **kwargs):
                 return fn(*args, **kwargs)
+
             return inner
+
         return decorator
+
     midi_track.midi_dict = midi_dict
     return midi_track
 
-channels = {
-    'drums': 9,
-    'bass' : 0,
-    'piano': 1
-}
+
+channels = {"drums": 9, "bass": 0, "piano": 1}
 
 track = track()
 
 
 class Notes(NamedTuple):
     times: Iterable[float]
-    keys: Iterable[int|None]
+    keys: Iterable[int | None]
     durations: Iterable[float]
-    velocities: Iterable[int]|None = None
+    velocities: Iterable[int] | None = None
 
 
-@track(channel='piano', font="metronome")
+@track(channel="piano", font="metronome")
 def metronome():
-    return Notes(
-        times      = (4, ) * 4,
-        keys       = (90,) * 4,
-        durations  = (64, ) * 4,
-        velocities = (100,) * 4
-    )
+    return Notes(times=(4,) * 4, keys=(90,) * 4, durations=(64,) * 4, velocities=(100,) * 4)
+
 
 @track(font="main2", active=True)
 def track1():
     seq = (4, 8, 8, 4, 4)
-    return Notes(
-        times      = (4, 8, 8, 4, 4),
-        keys       = (60, None, 63, 63, 60),
-        durations  = (4, 8, 8, 4, 4),
-        velocities = (100,) * 5
-    )
+    return Notes(times=(4, 8, 8, 4, 4), keys=(60, None, 63, 63, 60), durations=(4, 8, 8, 4, 4), velocities=(100,) * 5)
 
-sequence = {
-    'drums': (metronome, metronome)
-}
+
+sequence = {"drums": (metronome, metronome)}
 
 print(type(metronome), metronome.__name__, metronome())
+
 
 def run_sequencer() -> None:
 
     BPM = 60
     TPB = 96
-    trans = partial(units.unit2tick, bpm = BPM, ticks_per_beat= TPB )
-    print('trans', trans, trans(4))
+    trans = partial(units.unit2tick, bpm=BPM, ticks_per_beat=TPB)
+    print("trans", trans, trans(4))
 
     def seq_callback(time, event, seq, data):
         logger.debug(f"seq_callback: {time}, {event}, {seq}, {data}")
@@ -116,9 +111,10 @@ def run_sequencer() -> None:
                         t += trans(time)
                 logger.debug(notes)
         schedule_next_callback(now + trans(2))
+
     logger.debug(track.midi_dict)
     fs = Synth()
-    fs.start(driver='dsound')
+    fs.start(driver="dsound")
     sfid = fs.sfload("../../../soundfont.sf2")
     fs.program_select(0, sfid, 0, 0)
     # fs.noteon(0, 60, 100)
@@ -127,8 +123,9 @@ def run_sequencer() -> None:
     mySeqID = sequencer.register_client("mycallback", seq_callback)
     schedule_next_bar(sequencer.get_tick())
     time.sleep(10)
-    logger.debug('starting to delete')
+    logger.debug("starting to delete")
     sequencer.delete()
     fs.delete()
+
 
 run_sequencer()

@@ -9,9 +9,11 @@ logger = get_console_logger(__name__)
 # FIRST ITERATION
 # seq representation
 
+
 def gen_notes(synthSeqID):
     for i in range(8):
         yield (i + 1) * 250, 0, 60 + (2 * i), 250, 127, synthSeqID
+
 
 def run_sequencer() -> None:
 
@@ -27,13 +29,12 @@ def run_sequencer() -> None:
     def schedule_next_bar(now):
         logger.debug(f"schedule_next_bar: {now}")
         for time, channel, key, duration, velocity, dest in gen_notes(synthSeqID):
-        # sequencer.note(int(now + offset), 0, 60, duration=125, velocity=127, dest=synthSeqID)
+            # sequencer.note(int(now + offset), 0, 60, duration=125, velocity=127, dest=synthSeqID)
             sequencer.note(int(now + time), channel, key, duration=duration, velocity=velocity, dest=dest)
         schedule_next_callback(now + 2000)
 
-
     fs = Synth()
-    fs.start(driver='dsound')
+    fs.start(driver="dsound")
     sfid = fs.sfload("../../../soundfont.sf2")
     fs.program_select(0, sfid, 0, 0)
     # fs.noteon(0, 60, 100)
@@ -43,8 +44,9 @@ def run_sequencer() -> None:
     now = sequencer.get_tick()
     schedule_next_bar(now, 250)
     time.sleep(10)
-    logger.debug('starting to delete')
+    logger.debug("starting to delete")
     sequencer.delete()
     fs.delete()
+
 
 run_sequencer()

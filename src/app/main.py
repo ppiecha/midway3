@@ -10,14 +10,10 @@ from src.app.midi.player import player, play
 
 logger = get_console_logger(__name__)
 
-if __name__ == '__main__':
-    file_name = 'template1.py'
-    path = '../../projects/test1/'
-    new_file(
-        file_name=file_name,
-        path=path,
-        file_content_fn=file_content
-    )
+if __name__ == "__main__":
+    file_name = "template1.py"
+    path = "../../projects/test1/"
+    new_file(file_name=file_name, path=path, file_content_fn=file_content)
     spec = read_file(os.path.join(path, file_name))
     logger.debug(spec)
     exec(spec)

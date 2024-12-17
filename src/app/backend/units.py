@@ -1,4 +1,3 @@
-
 # Converts unit: 1, 2, 4, 8... to tick
 def unit2tick(unit: float, bpm: int, ticks_per_beat: int) -> int:
     if unit == 0:
@@ -13,15 +12,13 @@ def unit2tick(unit: float, bpm: int, ticks_per_beat: int) -> int:
         )
     )
 
+
 # Get ticks per second used in sequencer
 def ticks_per_second(bpm: int, ticks_per_beat: int) -> int:
-    return round(second2tick(
-        second=1,
-        ticks_per_beat=ticks_per_beat,
-        tempo=bpm2tempo(bpm=bpm)
-    ))
+    return round(second2tick(second=1, ticks_per_beat=ticks_per_beat, tempo=bpm2tempo(bpm=bpm)))
 
-def second2tick(second: float, ticks_per_beat : int, tempo: float) -> float:
+
+def second2tick(second: float, ticks_per_beat: int, tempo: float) -> float:
     """Convert absolute time in seconds to ticks.
 
     Returns absolute time in ticks for a chosen MIDI file time
@@ -30,6 +27,7 @@ def second2tick(second: float, ticks_per_beat : int, tempo: float) -> float:
     """
     scale = tempo * 1e-6 / ticks_per_beat
     return second / scale
+
 
 def bpm2tempo(bpm) -> int:
     """Convert beats per minute to MIDI file tempo.
