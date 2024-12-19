@@ -2,7 +2,7 @@ from functools import wraps
 from typing import Callable, Dict
 
 from src.app.backend.types import TrackArgs, PlayerArgs, MusicArgs
-from src.app.midi.sequences import midi_events_fn
+from src.app.midi.sequences import events_from_sequences
 from src.app.utils.logger import get_console_logger
 
 logger = get_console_logger(__name__)
@@ -43,6 +43,6 @@ def play(music_args: MusicArgs):
     tracks: Dict[str, TrackArgs] = music_args.track.tracks
     # sequences: Dict[str, Callable] = music_args.sequence.sequences
     sequences = player_args.sequences()
-    events = midi_events_fn(sequences=sequences, music_args=music_args, offset=0)
+    events = events_from_sequences(sequences=sequences, music_args=music_args, offset=0)
     for event in list(events):
         logger.debug(event)

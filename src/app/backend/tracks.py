@@ -27,27 +27,21 @@ def events_fn(notes: Notes) -> Iterable[Event]:
     if not notes.controls:
         notes = notes._replace(controls=replace_all(lambda x: None, notes.keys))
     logger.debug(f"{notes = }")
-    return tuple(Event(*e) for e in zip(*notes))
+    for note in zip(*notes):
+        yield Event(*note)
 
-
-def track_midi_events_fn(
-    music_args: MusicArgs, track_args: TrackArgs, u2t: UnitToTick, tick: Tick
-) -> tuple[Tick, set[MidiEvent]]:
-    midi_events: set[MidiEvent] = set()
-    track = music_args.track
-    channels: Channels = track.channels_map_func()
-    notes = track_args.notes()
-    events = events_fn(notes=notes)
-    channel = channels[track_args.channel_name]
-    for time, key, duration, velocity, program, control in events:
-        midi_events.add(MidiEvent(EventKind.NOTE, tick, channel, key, u2t(duration), velocity, program, control))
-        if program:
-            midi_events.add(MidiEvent(EventKind.PROGRAM, tick, channel, key, 0, velocity, program, control))
-        if control:
-            midi_events.add(MidiEvent(EventKind.CONTROL, tick, channel, key, 0, velocity, program, control))
-        tick += u2t(time)
-    return tick, midi_events
-
+def args_wrapper(tick, channel, program_, u2t):
+    def midi_events_from_events(events: Iterable[Event]) -> Iterable[MidiEvent]:
+        nonlocal tick
+        yield MidiEvent(EventKind.PROGRAM, tick, channel, None, None, None, program_, None)
+        for time, key, duration, velocity, program, control in events:
+            yield MidiEvent(EventKind.NOTE, tick, channel, key, u2t(duration), velocity, program, control)
+            if program:
+                yield MidiEvent(EventKind.PROGRAM, tick, channel, None, None, None, program, None)
+            if control:
+                yield MidiEvent(EventKind.CONTROL, tick, channel, None, None, None, None, control)
+            tick += u2t(time)
+    return midi_events_from_events
 
 def track_wrapper():
     tracks = {}
