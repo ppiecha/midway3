@@ -1,5 +1,6 @@
 import os.path
 
+from src.app.backend.types import MusicArgs, Notes
 from src.app.utils.file_generator import file_content, new_file
 from src.app.utils.file_ops import read_file
 from src.app.utils.logger import get_console_logger
@@ -17,4 +18,4 @@ if __name__ == "__main__":
     spec = read_file(os.path.join(path, file_name))
     logger.debug(spec)
     exec(spec)
-    play(player=player, track=track, sequence=sequence)
+    play(MusicArgs(player=player, track=track, sequence=sequence))

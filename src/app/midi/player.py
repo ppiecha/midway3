@@ -1,24 +1,24 @@
-import inspect
 from functools import wraps
-from typing import NamedTuple, Callable, Dict
+from typing import Callable, Dict
 
-from src.app.backend.tracks import TrackArgs
+from src.app.backend.types import TrackArgs, PlayerArgs, MusicArgs
+from src.app.midi.sequences import midi_events_fn
 from src.app.utils.logger import get_console_logger
 
 logger = get_console_logger(__name__)
 
 
-class PlayerArgs(NamedTuple):
-    bpm: int
-    soundfont_path: str
-    ticks_per_beat: int
-    sequence: Callable
-
-
 def player_wrapper():
-    def outer(bpm: int, soundfont_path: str, ticks_per_beat: int = 96, start_part: int = 1, end_part: int = 0):
+    def outer(
+        bpm: int,
+        soundfont_path: str,
+        soundfont: str,
+        ticks_per_beat: int = 96,
+        start_part: int = 1,
+        end_part: int | None = None,
+    ):
         def decorator(fn):
-            outer.args = PlayerArgs(bpm, soundfont_path, ticks_per_beat, fn)
+            outer.args = PlayerArgs(bpm, soundfont_path, soundfont, ticks_per_beat, fn)
 
             @wraps(fn)
             def inner(*args_, **kwargs):
@@ -34,13 +34,15 @@ def player_wrapper():
 player = player_wrapper()
 
 
-def play(player, track, sequence):
+def play(music_args: MusicArgs):
     # logger.debug(track.tracks)
-    player_args: PlayerArgs = player.args
+    player_args: PlayerArgs = music_args.player.args
     # logger.debug(inspect.getclosurevars(track.channels).nonlocals)
-    channels: Dict[str, int] = track.channels_map_func()
+    channels: Dict[str, int] = music_args.track.channels_map_func()
     # logger.debug(channels)
-    tracks: Dict[str, TrackArgs] = track.tracks
-    sequences: Dict[str, Callable] = sequence.sequences
-    sequence = player_args.sequence()
-    logger.debug(sequence)
+    tracks: Dict[str, TrackArgs] = music_args.track.tracks
+    # sequences: Dict[str, Callable] = music_args.sequence.sequences
+    sequences = player_args.sequences()
+    events = midi_events_fn(sequences=sequences, music_args=music_args, offset=0)
+    for event in list(events):
+        logger.debug(event)

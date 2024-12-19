@@ -4,7 +4,7 @@ def unit2tick(unit: float, bpm: int, ticks_per_beat: int) -> int:
         return 0
     beat_length = 60.0 / bpm
     second = beat_length * (4.0 / unit)
-    return round(
+    return int(
         second2tick(
             second=second,
             ticks_per_beat=ticks_per_beat,
