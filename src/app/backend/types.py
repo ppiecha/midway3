@@ -1,7 +1,10 @@
 from __future__ import annotations
 from collections.abc import Iterable, Callable
 from enum import Enum
+from functools import partial
 from typing import NamedTuple
+
+from src.app.backend.units import unit2tick
 
 DEFAULT_VELOCITY = 100
 
@@ -37,6 +40,7 @@ class Notes(NamedTuple):
 class Program(NamedTuple):
     bank: int
     preset: int
+    sfid: int
 
 
 class Control(NamedTuple):
@@ -78,9 +82,14 @@ class PlayerArgs(NamedTuple):
     soundfont: str
     ticks_per_beat: int
     sequences: Callable
+    u2t_: Callable = None
+
+    @property
+    def u2t(self):
+        return partial(unit2tick, bpm=self.bpm, ticks_per_beat=self.ticks_per_beat)
 
 
 class MusicArgs(NamedTuple):
-    player: Callable[[int, str, int, int, int], Callable]
-    track: Callable[[str, str, int, int], Callable]
-    sequence: Callable[[], Callable]
+    player: Callable
+    track: Callable
+    sequence: Callable

@@ -21,7 +21,7 @@ def file_content(file_name: str) -> str:
         "@track.channels",
         "def channels_map():",
         "\treturn {",
-        '\t\t"drums":    9,',
+        '\t\t"drums":    10,',
         '\t\t"bass":     0,',
         '\t\t"piano":    1,',
         "}",
@@ -33,7 +33,7 @@ def file_content(file_name: str) -> str:
         "def drums1():",
         "\treturn Notes(",
         "\t\ttimes      = (4 ,) * 4,",
-        "\t\tkeys       = (60,) * 4,",
+        "\t\tkeys       = (36,) * 4,",
         "\t\tdurations  = (32,) * 4,",
         "\t\t#velocities = (),",
         ")",
@@ -45,7 +45,7 @@ def file_content(file_name: str) -> str:
         "def bass1():",
         "\treturn Notes(",
         "\t\ttimes      = (4 ,) * 4,",
-        "\t\tkeys       = (60, 62, 64, 65),",
+        "\t\tkeys       = (60, 59, 57, 55),",
         "\t\tdurations  = (8,) * 4,",
         "\t\t#velocities = (),",
         ")",
@@ -84,7 +84,7 @@ def file_content(file_name: str) -> str:
     sequence2 = "\n".join(sequence2)
 
     player = (
-        '@player(bpm=100, soundfont_path="../..", soundfont="soundfont.sf2", ticks_per_beat=96, start_part=1, end_part=0)',
+        '@player(bpm=60, soundfont_path="../..", soundfont="soundfont.sf2", ticks_per_beat=96, start_part=1, end_part=0)',
         "def music():",
         "\treturn sequence1, sequence2, ",
     )

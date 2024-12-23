@@ -1,6 +1,6 @@
 import time
 
-import fluidsynth
+from src.app.backend import synth as fluidsynth
 
 seqduration = 1000
 
@@ -46,7 +46,7 @@ if __name__ == "__main__":
     global sequencer, fs, mySeqID, synthSeqID, now
     fs = fluidsynth.Synth()
     fs.start(driver="dsound")
-    sfid = fs.sfload("soundfont.sf2")
+    sfid = fs.sfload("../../../soundfont.sf2")
     fs.program_select(0, sfid, 0, 0)
     fs.program_select(1, sfid, 0, 0)  # use the same program for channel 2 for cheapness
 

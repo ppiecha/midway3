@@ -6,11 +6,7 @@ from src.app.backend.types import (
     Notes,
     Event,
     TrackArgs,
-    MusicArgs,
-    Channels,
-    UnitToTick,
     MidiEvent,
-    Tick,
     EventKind,
 )
 from src.app.utils.iter import replace_all
@@ -26,7 +22,7 @@ def events_fn(notes: Notes) -> Iterable[Event]:
         notes = notes._replace(programs=replace_all(lambda x: None, notes.keys))
     if not notes.controls:
         notes = notes._replace(controls=replace_all(lambda x: None, notes.keys))
-    logger.debug(f"{notes = }")
+    # logger.debug(f"{notes = }")
     for note in zip(*notes):
         yield Event(*note)
 
@@ -41,6 +37,8 @@ def args_wrapper(tick, channel, program_, u2t):
             if control:
                 yield MidiEvent(EventKind.CONTROL, tick, channel, None, None, None, None, control)
             tick += u2t(time)
+            midi_events_from_events.tick = tick
+
     return midi_events_from_events
 
 def track_wrapper():

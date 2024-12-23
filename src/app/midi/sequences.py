@@ -31,23 +31,25 @@ def sequence_wrapper():
 
 sequence = sequence_wrapper()
 
-def events_from_sequences(
-    sequences: Iterable[Callable[[], Sequence]], music_args: MusicArgs, offset: Tick = 0
-) -> Iterable[MidiEvent]:
+def events_from_sequences(music_args: MusicArgs, offset: Tick = 0) -> Iterable[MidiEvent]:
     track = music_args.track
     tracks: Tracks = track.tracks
     channels: Channels = track.channels_map_func()
     player_args: PlayerArgs = music_args.player.args
-    u2t = partial(unit2tick, bpm=player_args.bpm, ticks_per_beat=player_args.ticks_per_beat)
+    sequences = music_args.player.args.sequences()
+    u2t = player_args.u2t
     for sequence in sequences:
         for bar in sequence():
             tick = offset
+            logger.debug(f"{tick = }")
             for track_fn in bar:
                 track_args = tracks[track_fn.__name__]
                 program = Program(track_args.bank, track_args.preset)
                 channel = channels[track_args.channel_name]
                 midi_events_fn = args_wrapper(tick, channel, program, u2t)
                 yield from midi_events_fn(events_fn(track_args.notes()))
+                tick = midi_events_fn.tick
             sequence_length = tick
             logger.debug(f"{sequence_length = }")
         offset += sequence_length
+    return offset
