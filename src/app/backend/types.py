@@ -6,6 +6,7 @@ from typing import NamedTuple
 
 from src.app.backend.units import unit2tick
 
+DEFAULT = "default"
 DEFAULT_VELOCITY = 100
 
 type Time = float
@@ -16,6 +17,8 @@ type Velocity = int | tuple[int]
 type Tick = int
 type Channel = int
 type Channels = dict[str, int]
+type Soundfonts = dict[str, str]
+type SoundfontIds = dict[str, int]
 type Sequence = Iterable[Iterable[Callable[[], Notes]]]
 type Tracks = dict[str, TrackArgs]
 
@@ -30,17 +33,17 @@ class EventKind(str, Enum):
 
 class Notes(NamedTuple):
     times: Iterable[Time]
-    keys: Iterable[Key]
-    durations: Iterable[Duration]
+    keys: Iterable[Key] | None = None
+    durations: Iterable[Duration] | None = None
     velocities: Iterable[Velocity] | None = None
     programs: Iterable[Program | None] | None = None
     controls: Iterable[Control | None] | None = None
 
 
 class Program(NamedTuple):
+    sfid: int
     bank: int
     preset: int
-    sfid: int
 
 
 class Control(NamedTuple):
@@ -62,8 +65,8 @@ class MidiEvent(NamedTuple):
     tick: Tick
     channel: Channel
     key: Key
-    duration: Tick
-    velocity: Velocity
+    duration: Tick | None
+    velocity: Velocity | None
     program: Program | None = None
     control: Control | None = None
 
@@ -72,6 +75,7 @@ class TrackArgs(NamedTuple):
     name: str
     channel_name: str
     notes: Callable
+    soundfont: str
     bank: int = 0
     preset: int = 0
 
@@ -93,3 +97,4 @@ class MusicArgs(NamedTuple):
     player: Callable
     track: Callable
     sequence: Callable
+    soundfont_ids: SoundfontIds | None

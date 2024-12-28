@@ -1,3 +1,4 @@
+from collections.abc import Iterator
 from functools import wraps
 from typing import Iterable
 
@@ -8,14 +9,17 @@ from src.app.backend.types import (
     TrackArgs,
     MidiEvent,
     EventKind,
+    DEFAULT,
 )
-from src.app.utils.iter import replace_all
+from src.app.utils.iter import replace_all, peek
 from src.app.utils.logger import get_console_logger
 
 logger = get_console_logger(__name__)
 
 
-def events_fn(notes: Notes) -> Iterable[Event]:
+def events_fn(notes: Notes) -> Iterator[Event]:
+    if not notes or not notes.keys:
+        return
     if not notes.velocities:
         notes = notes._replace(velocities=replace_all(lambda x: DEFAULT_VELOCITY, notes.keys))
     if not notes.programs:
@@ -26,8 +30,13 @@ def events_fn(notes: Notes) -> Iterable[Event]:
     for note in zip(*notes):
         yield Event(*note)
 
+
 def args_wrapper(tick, channel, program_, u2t):
-    def midi_events_from_events(events: Iterable[Event]) -> Iterable[MidiEvent]:
+    def midi_events_from_events(events: Iterator[Event]) -> Iterator[MidiEvent]:
+        res = peek(iterator=events)
+        if not res:
+            return
+        _, events = res
         nonlocal tick
         yield MidiEvent(EventKind.PROGRAM, tick, channel, None, None, None, program_, None)
         for time, key, duration, velocity, program, control in events:
@@ -41,12 +50,16 @@ def args_wrapper(tick, channel, program_, u2t):
 
     return midi_events_from_events
 
+
+# TODO change from function to class with methods
 def track_wrapper():
     tracks = {}
 
-    def track_outer(channel: str, bank: int = 0, preset: int = 0):
+    def track_outer(channel: str, soundfont: str = DEFAULT, bank: int = 0, preset: int = 0):
         def decorator(fn):
-            tracks[fn.__name__] = TrackArgs(fn.__name__, channel, fn, bank, preset)
+            tracks[fn.__name__] = TrackArgs(
+                name=fn.__name__, channel_name=channel, notes=fn, soundfont=soundfont, bank=bank, preset=preset
+            )
 
             @wraps(fn)
             def inner(*args, **kwargs):
@@ -65,8 +78,18 @@ def track_wrapper():
 
         return inner
 
+    def soundfonts_decorator(fn):
+        track_outer.soundfonts_map_func = fn
+
+        @wraps(fn)
+        def inner(*args, **kwargs):
+            return fn(*args, **kwargs)
+
+        return inner
+
     track_outer.tracks = tracks
     track_outer.channels = channels_decorator
+    track_outer.soundfonts = soundfonts_decorator
 
     return track_outer
 

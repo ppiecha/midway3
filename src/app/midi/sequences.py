@@ -2,8 +2,17 @@ from collections.abc import Iterable, Callable
 from functools import wraps, partial
 
 from src.app.backend.tracks import events_fn, args_wrapper
-from src.app.backend.types import Sequence, MidiEvent, UnitToTick, MusicArgs, PlayerArgs, Tracks, Tick, Channels, \
-    Program
+from src.app.backend.types import (
+    Sequence,
+    MidiEvent,
+    UnitToTick,
+    MusicArgs,
+    PlayerArgs,
+    Tracks,
+    Tick,
+    Channels,
+    Program,
+)
 from src.app.backend.units import unit2tick
 from src.app.utils.logger import get_console_logger
 
@@ -31,6 +40,7 @@ def sequence_wrapper():
 
 sequence = sequence_wrapper()
 
+
 def events_from_sequences(music_args: MusicArgs, offset: Tick = 0) -> Iterable[MidiEvent]:
     track = music_args.track
     tracks: Tracks = track.tracks
@@ -40,11 +50,12 @@ def events_from_sequences(music_args: MusicArgs, offset: Tick = 0) -> Iterable[M
     u2t = player_args.u2t
     for sequence in sequences:
         for bar in sequence():
-            tick = offset
-            logger.debug(f"{tick = }")
             for track_fn in bar:
+                tick = offset
+                logger.debug(f"{tick = }")
                 track_args = tracks[track_fn.__name__]
-                program = Program(track_args.bank, track_args.preset)
+                sfid = music_args.soundfont_ids[track_args.soundfont]
+                program = Program(sfid, track_args.bank, track_args.preset)
                 channel = channels[track_args.channel_name]
                 midi_events_fn = args_wrapper(tick, channel, program, u2t)
                 yield from midi_events_fn(events_fn(track_args.notes()))

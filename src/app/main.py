@@ -17,4 +17,4 @@ if __name__ == "__main__":
     spec = read_file(os.path.join(path, file_name))
     # logger.debug(spec)
     exec(spec)
-    sequencer = sequencer_wrapper(MusicArgs(player=player, track=track, sequence=sequence))
+    sequencer = sequencer_wrapper(MusicArgs(player=player, track=track, sequence=sequence, soundfont_ids=None))

@@ -1,5 +1,5 @@
 import time
-import fluidsynth
+from src.app.backend import synth as fluidsynth
 
 fs = fluidsynth.Synth()
 fs.start(driver="dsound")

@@ -30,7 +30,6 @@ for i in range(60):
     fs.noteoff(c, i)
 
 
-
 # fs.noteon(c, 60, 120)
 # fs.noteon(c, 36, 120)
 # fs.noteon(c, 37, 120)

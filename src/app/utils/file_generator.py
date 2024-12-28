@@ -28,20 +28,23 @@ def file_content(file_name: str) -> str:
     )
     channels = "\n".join(channels)
 
+    soundfonts = ("@track.soundfonts", "def soundfonts_map():", "\treturn {", '\t\t"default": "soundfont.sf2",', "}")
+    soundfonts = "\n".join(soundfonts)
+
     drums = (
-        '@track(channel="drums", bank=0, preset=0)',
+        '@track(channel="drums", soundfont = "default", bank=128, preset=0)',
         "def drums1():",
         "\treturn Notes(",
-        "\t\ttimes      = (4 ,) * 4,",
-        "\t\tkeys       = (36,) * 4,",
-        "\t\tdurations  = (32,) * 4,",
+        "\t\ttimes      = (8 ,) * 8,",
+        "\t\tkeys       = (37,) * 8,",
+        "\t\tdurations  = (32,) * 8,",
         "\t\t#velocities = (),",
         ")",
     )
     drums = "\n".join(drums)
 
     bass = (
-        '@track(channel="bass", bank=0, preset=12)',
+        '@track(channel="bass", soundfont = "default", bank=0, preset=24)',
         "def bass1():",
         "\treturn Notes(",
         "\t\ttimes      = (4 ,) * 4,",
@@ -53,7 +56,7 @@ def file_content(file_name: str) -> str:
     bass = "\n".join(bass)
 
     piano = (
-        '@track(channel="piano", bank=0, preset=0)',
+        '@track(channel="piano", soundfont = "default", bank=0, preset=0)',
         "def piano1():",
         "\treturn Notes(",
         "\t\ttimes      = (4 ,) * 4,",
@@ -91,5 +94,5 @@ def file_content(file_name: str) -> str:
     player = "\n".join(player)
 
     return "\n\n".join(
-        [file_name, imports, channels, drums, bass, piano, sequence1, sequence2, player, 'print("Success")']
+        [file_name, imports, channels, soundfonts, drums, bass, piano, sequence1, sequence2, player, 'print("Success")']
     )

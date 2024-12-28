@@ -1630,10 +1630,3 @@ class Sequencer:
 
     def delete(self):
         delete_fluid_sequencer(self.sequencer)
-
-    def __del__(self):
-        if hasattr(self, "client_id") and self.client_id:
-            self.unregister_client(client_id=self.client_id)
-        self.client_callbacks.clear()
-        if self.sequencer:
-            self.delete()
