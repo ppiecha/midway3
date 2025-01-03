@@ -1,5 +1,5 @@
 import itertools
-from collections.abc import Callable, Iterable
+from collections.abc import Callable, Iterable, Iterator
 from functools import reduce
 
 
@@ -19,3 +19,7 @@ def peek(iterator):
     except StopIteration:
         return None
     return first, itertools.chain([first], iterator)
+
+
+def empty_gen() -> Iterable:
+    yield from ()

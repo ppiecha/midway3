@@ -18,7 +18,7 @@ def file_content(file_name: str) -> str:
     imports = f"from itertools import count"
 
     channels = (
-        "@track.channels",
+        "@voice.channels",
         "def channels_map():",
         "\treturn {",
         '\t\t"drums":    10,',
@@ -28,11 +28,11 @@ def file_content(file_name: str) -> str:
     )
     channels = "\n".join(channels)
 
-    soundfonts = ("@track.soundfonts", "def soundfonts_map():", "\treturn {", '\t\t"default": "soundfont.sf2",', "}")
+    soundfonts = ("@voice.soundfonts", "def soundfonts_map():", "\treturn {", '\t\t"default": "soundfont.sf2",', "}")
     soundfonts = "\n".join(soundfonts)
 
     drums = (
-        '@track(channel="drums", soundfont = "default", bank=128, preset=0)',
+        '@voice(channel="drums", soundfont = "default", bank=128, preset=0)',
         "def drums1():",
         "\treturn Notes(",
         "\t\ttimes      = (8 ,) * 8,",
@@ -44,7 +44,7 @@ def file_content(file_name: str) -> str:
     drums = "\n".join(drums)
 
     bass = (
-        '@track(channel="bass", soundfont = "default", bank=0, preset=24)',
+        '@voice(channel="bass", soundfont = "default", bank=0, preset=24)',
         "def bass1():",
         "\treturn Notes(",
         "\t\ttimes      = (4 ,) * 4,",
@@ -56,7 +56,7 @@ def file_content(file_name: str) -> str:
     bass = "\n".join(bass)
 
     piano = (
-        '@track(channel="piano", soundfont = "default", bank=0, preset=0)',
+        '@voice(channel="piano", soundfont = "default", bank=0, preset=0)',
         "def piano1():",
         "\treturn Notes(",
         "\t\ttimes      = (4 ,) * 4,",
@@ -68,31 +68,29 @@ def file_content(file_name: str) -> str:
     piano = "\n".join(piano)
 
     sequence1 = (
-        "@sequence()",
-        "def sequence1():",
-        "\treturn (",
-        "\t\t(drums1, bass1),",
-        ")",
+        "@cmb()",
+        "def cmb1():",
+        "\treturn drums1, bass1",
     )
     sequence1 = "\n".join(sequence1)
 
-    sequence2 = (
-        "@sequence()",
-        "def sequence2():",
-        "\treturn (",
-        "\t\t(drums1, piano1),",
-        "\t\t(drums1, bass1),",
-        ")",
-    )
-    sequence2 = "\n".join(sequence2)
+    # sequence2 = (
+    #     "@sequence()",
+    #     "def sequence2():",
+    #     "\treturn [",
+    #     "\t\t(drums1, piano1),",
+    #     "\t\t(drums1, bass1),",
+    #     "\t]",
+    # )
+    # sequence2 = "\n".join(sequence2)
 
     player = (
         '@player(bpm=60, soundfont_path="../..", soundfont="soundfont.sf2", ticks_per_beat=96, start_part=1, end_part=0)',
         "def music():",
-        "\treturn sequence1, sequence2, ",
+        "\treturn cmb1 ",
     )
     player = "\n".join(player)
 
     return "\n\n".join(
-        [file_name, imports, channels, soundfonts, drums, bass, piano, sequence1, sequence2, player, 'print("Success")']
+        [file_name, imports, channels, soundfonts, drums, bass, piano, sequence1, player, 'print("Success")']
     )

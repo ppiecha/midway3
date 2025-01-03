@@ -1,77 +1,28 @@
-import os.path
-import time
-from collections.abc import Iterable
-from functools import wraps
-
-from src.app.backend.synth import Synth, Sequencer
-from src.app.backend.types import PlayerArgs, MusicArgs, MidiEvent, Tick, EventKind, Tracks, Soundfonts, SoundfontIds
-from src.app.backend.units import ticks_per_second
-from src.app.midi.sequences import events_from_sequences
-from src.app.utils.logger import get_console_logger
-
-logger = get_console_logger(__name__)
-
-
-def player_wrapper():
-    def outer(
-        bpm: int,
-        soundfont_path: str,
-        soundfont: str,
-        ticks_per_beat: int = 96,
-        start_part: int = 1,
-        end_part: int | None = None,
-    ):
-        def decorator(fn):
-            outer.args = PlayerArgs(bpm, soundfont_path, soundfont, ticks_per_beat, fn)
-
-            @wraps(fn)
-            def inner(*args_, **kwargs):
-                return fn(*args_, **kwargs)
-
-            return inner
-
-        return decorator
-
-    return outer
-
-
-player = player_wrapper()
-
-
-def events_to_play(music_args: MusicArgs, offset: Tick = 0) -> tuple[Tick, Iterable[MidiEvent]]:
-    events = events_from_sequences(music_args=music_args, offset=offset)
-    all_events = []
-    while 1:
-        try:
-            all_events.append(next(events))
-        except StopIteration as e:
-            return e.value, all_events
-
-
 def sequencer_wrapper(music_args: MusicArgs):
 
-    player_args = music_args.player.args
-    u2t = player_args.u2t
-    track = music_args.track
+    player_args = music_args.player.args[0]
+    u2t = player_args.tick_from_unit
+    track = music_args.voice
     soundfonts: Soundfonts = track.soundfonts_map_func()
 
     def seq_callback(time, event, seq, data):
         logger.debug(f"seq_callback: {time}, {event}, {seq}, {data}")
-        schedule_next_bar(time + u2t(2))
+        schedule_next_bar(Tick(2.0).add(time))
 
     def schedule_next_callback(next_callback_time):
         # I want to be called back before the end of the next sequence
         logger.debug(f"schedule_next_callback: {next_callback_time}")
         sequencer.timer(next_callback_time, dest=my_seq_id)
 
-    def schedule_next_bar(offset):
+    def schedule_next_bar(offset: Tick):
         logger.debug(f"schedule_next_bar: {offset}")
-        tick, events = events_to_play(music_args=music_args, offset=offset)
-        for e in events:
-            logger.debug(e)
+        tick, midi_events = events_from_sequences(music_args=music_args, offset=offset)
+        for e in midi_events:
+            logger.debug(f"{tick} {e}")
             sequencer_event(e)
 
-        schedule_next_callback(offset + int(tick / 2))
+        logger.debug(f"tt {tick} {offset} {Tick(tick / 2)} {Tick(tick / 2).add(offset)}")
+        schedule_next_callback(Tick(tick / 2).add(offset))
 
     def sequencer_event(event: MidiEvent) -> None:
         match event.kind:
@@ -114,7 +65,7 @@ def sequencer_wrapper(music_args: MusicArgs):
     )
     synth_seq_id = sequencer.register_fluidsynth(fs)
     my_seq_id = sequencer.register_client("mycallback", seq_callback)
-    schedule_next_bar(sequencer.get_tick())
+    schedule_next_bar(Tick(sequencer.get_tick()))
     time.sleep(20)
     logger.debug("starting to delete")
     sequencer.delete()

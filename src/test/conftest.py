@@ -3,7 +3,7 @@ from functools import partial
 
 import pytest
 
-from src.app.backend.tracks import events_fn
+from src.app.decorators.voice import events_fn
 from src.app.backend.types import Notes, Event
 from src.app.backend.units import unit2tick
 
@@ -41,7 +41,7 @@ def fixture_two_note() -> Notes:
 
 @pytest.fixture(name="one_note_event")
 def fixture_one_note_event(one_note) -> Iterable[Event]:
-    return next(events_fn(one_note))
+    return next(iter(events_fn(one_note)))
 
 
 @pytest.fixture(name="u2t60")

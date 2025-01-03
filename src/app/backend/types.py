@@ -2,27 +2,40 @@ from __future__ import annotations
 from collections.abc import Iterable, Callable
 from enum import Enum
 from functools import partial
-from typing import NamedTuple
-
+from typing import NamedTuple, TYPE_CHECKING
 from src.app.backend.units import unit2tick
 
 DEFAULT = "default"
 DEFAULT_VELOCITY = 100
 
-type Time = float
+type TimeUnit = float
 type Key = int | None | tuple[int]
 type Duration = int | None | tuple[int]
 type Velocity = int | tuple[int]
-
-type Tick = int
 type Channel = int
 type Channels = dict[str, int]
+type ChannelsMapFunc = Callable[[], Channels]
 type Soundfonts = dict[str, str]
+type SoundfontsMapFunc = Callable[[], Soundfonts]
 type SoundfontIds = dict[str, int]
-type Sequence = Iterable[Iterable[Callable[[], Notes]]]
-type Tracks = dict[str, TrackArgs]
+type NotesFunc = Callable[[], Notes]
+type CombinationFunc = Callable[[], Iterable[NotesFunc]]
+type VoiceRegistry = dict[str, VoiceArgs]
+type VoiceCombinationRegistry = dict[str, CombinationFunc]
 
-type UnitToTick = Callable[[float], int]
+
+type UnitToTick = Callable[[float], Tick]
+
+
+class Tick(int):
+    def add(self, other):
+        match other:
+            case Tick():
+                return Tick(self + int(other))
+            case float() | int():  # TimeUnit
+                return Tick(self + self.tick_from_unit(other))
+            case _:
+                raise TypeError(f"{type(other)} not supported")
 
 
 class EventKind(str, Enum):
@@ -32,7 +45,7 @@ class EventKind(str, Enum):
 
 
 class Notes(NamedTuple):
-    times: Iterable[Time]
+    times: Iterable[TimeUnit]
     keys: Iterable[Key] | None = None
     durations: Iterable[Duration] | None = None
     velocities: Iterable[Velocity] | None = None
@@ -52,7 +65,7 @@ class Control(NamedTuple):
 
 
 class Event(NamedTuple):
-    time: Time
+    time: TimeUnit
     key: Key
     duration: Duration
     velocity: Velocity
@@ -71,10 +84,18 @@ class MidiEvent(NamedTuple):
     control: Control | None = None
 
 
-class TrackArgs(NamedTuple):
+type MidiEvents = Iterable[MidiEvent]
+
+
+class MidiEventsWithTick(NamedTuple):
+    tick: Tick
+    midi_events: Iterable[MidiEvent]
+
+
+class VoiceArgs(NamedTuple):
     name: str
     channel_name: str
-    notes: Callable
+    notes_fn: NotesFunc
     soundfont: str
     bank: int = 0
     preset: int = 0
@@ -85,16 +106,8 @@ class PlayerArgs(NamedTuple):
     soundfont_path: str
     soundfont: str
     ticks_per_beat: int
-    sequences: Callable
-    u2t_: Callable = None
+    music: Callable
 
     @property
-    def u2t(self):
+    def tick_from_unit(self):
         return partial(unit2tick, bpm=self.bpm, ticks_per_beat=self.ticks_per_beat)
-
-
-class MusicArgs(NamedTuple):
-    player: Callable
-    track: Callable
-    sequence: Callable
-    soundfont_ids: SoundfontIds | None
