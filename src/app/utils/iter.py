@@ -1,15 +1,13 @@
 import itertools
-from collections.abc import Callable, Iterable, Iterator
+from collections.abc import Callable, Iterable
 from functools import reduce
 
 
 def replace_all(fn: Callable, it: Iterable) -> Iterable:
     return tuple([replace_all(fn, i) if isinstance(i, Iterable) else fn(i) for i in it])
 
-
 def compose(*funcs):
     return lambda x: reduce(lambda f, g: g(f), list(funcs), x)
-
 
 def peek(iterator):
     if not iterator:
@@ -23,3 +21,15 @@ def peek(iterator):
 
 def empty_gen() -> Iterable:
     yield from ()
+
+def iterable(iterator):
+
+    class IterableTemp:
+
+        def __init__(self, it):
+            self.it = it
+
+        def __iter__(self):
+            return self.it
+
+    return IterableTemp(iterator)

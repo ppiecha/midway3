@@ -1545,7 +1545,6 @@ class Sequencer:
 
     def register_fluidsynth(self, synth):
         response = fluid_sequencer_register_fluidsynth(self.sequencer, synth.synth)
-        self.synth = synth
         if response == FLUID_FAILED:
             raise OSError("Registering fluid synth failed")
 

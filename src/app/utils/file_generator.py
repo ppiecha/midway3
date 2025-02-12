@@ -15,7 +15,7 @@ def new_file(file_name: str, path: str = "", file_content_fn: Callable | None = 
 
 def file_content(file_name: str) -> str:
     file_name = f"# {file_name}"
-    imports = f"from itertools import count"
+    imports = "from itertools import count"
 
     channels = (
         "@voice.channels",
@@ -68,8 +68,8 @@ def file_content(file_name: str) -> str:
     piano = "\n".join(piano)
 
     sequence1 = (
-        "@cmb()",
-        "def cmb1():",
+        "@mix()",
+        "def mix1():",
         "\treturn drums1, bass1",
     )
     sequence1 = "\n".join(sequence1)
@@ -87,7 +87,7 @@ def file_content(file_name: str) -> str:
     player = (
         '@player(bpm=60, soundfont_path="../..", soundfont="soundfont.sf2", ticks_per_beat=96, start_part=1, end_part=0)',
         "def music():",
-        "\treturn cmb1 ",
+        "\treturn mix1 ",
     )
     player = "\n".join(player)
 

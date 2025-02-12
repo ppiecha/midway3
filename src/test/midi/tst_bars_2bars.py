@@ -4,7 +4,7 @@ from src.app.decorators.voice import voice
 from src.app.backend.types import Notes, EventKind, MidiEvent, Program, Tick
 from src.app.midi.music_args import MusicArgs
 from src.app.decorators.player import player
-from src.app.decorators.voice_combination import cmb, events_from_sequences
+from src.app.decorators.voice_mix import mix, events_from_sequences
 
 
 @voice.channels
@@ -43,12 +43,12 @@ def track2():
     )
 
 
-@cmb()
+@mix()
 def sequence1():
     return ((track1, track2),)
 
 
-@cmb()
+@mix()
 def sequence2():
     return (
         (track1, track2),
@@ -63,7 +63,7 @@ def music():
 
 @pytest.fixture(name="music_args")
 def fixture_music_args():
-    return MusicArgs(player=player, track=voice, sequence=cmb, soundfont_ids={"default": 0})
+    return MusicArgs(player=player, track=voice, sequence=mix, soundfont_ids={"default": 0})
 
 
 def test_bars(music_args):

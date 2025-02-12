@@ -8,7 +8,7 @@ from src.app.midi.music_args import MusicArgs
 
 
 def midi_events(music_args: MusicArgs, tick: Tick) -> MidiEvents:
-    return cmb_events(cmb=music_args.music(), music_args=music_args, tick=tick)
+    return mix_events(mix=music_args.music(), music_args=music_args, tick=tick)
 
 
 def voice_args_events(voice_args: VoiceArgs, music_args: MusicArgs, tick: Tick) -> MidiEvents:
@@ -27,15 +27,15 @@ def voice_args_events(voice_args: VoiceArgs, music_args: MusicArgs, tick: Tick) 
         if control:
             yield MidiEvent(EventKind.CONTROL, tick, channel, None, None, None, None, control)
         tick = tick.add(time)
-    # yield with time only
+    yield MidiEvent(EventKind.META_END_OF_USER_SEQ, tick, channel, None, None, None, None, None)
 
 
 def add_midi_events(iterable: Iterable[MidiEvents]) -> MidiEvents:
     return itertools.chain(*iterable)
 
 
-def cmb_events(cmb: Iterable[NotesFunc], music_args: MusicArgs, tick: Tick) -> MidiEvents:
-    voice_args_iter = map(lambda fn: music_args.voice_args_by_name(fn.__name__), cmb)
+def mix_events(mix: Iterable[NotesFunc], music_args: MusicArgs, tick: Tick) -> MidiEvents:
+    voice_args_iter = map(lambda fn: music_args.voice_args_by_name(fn.__name__), mix)
     fn = partial(voice_args_events, music_args=music_args, tick=tick)
     events_iter = map(fn, voice_args_iter)
     return add_midi_events(events_iter)

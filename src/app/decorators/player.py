@@ -1,13 +1,8 @@
-import os.path
-import time
 from functools import wraps
 
 from typing_extensions import NamedTuple
 
-from src.app.backend.synth import Synth, Sequencer
-from src.app.backend.types import PlayerArgs, MidiEvent, Tick, EventKind, Soundfonts, SoundfontIds
-from src.app.midi.music_args import MusicArgs
-from src.app.backend.units import ticks_per_second
+from src.app.backend.types import PlayerArgs
 from src.app.utils.logger import get_console_logger
 
 logger = get_console_logger(__name__)

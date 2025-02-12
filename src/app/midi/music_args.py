@@ -7,26 +7,25 @@ from typing import NamedTuple
 from src.app.backend.types import (
     SoundfontIds,
     VoiceRegistry,
-    VoiceCombinationRegistry,
+    VoiceMixRegistry,
     Channels,
     UnitToTick,
     PlayerArgs,
     Soundfonts,
-    CombinationFunc,
     Tick,
     NotesFunc,
 )
 
 if typing.TYPE_CHECKING:
     from src.app.decorators.player import Player
-    from src.app.decorators.voice_combination import VoiceCombination
+    from src.app.decorators.voice_mix import VoiceMix
     from src.app.decorators.voice import Voice
 
 
 class MusicArgs(NamedTuple):
     player: Player
     voice: Voice
-    cmb: VoiceCombination
+    mix: VoiceMix
     soundfont_ids: SoundfontIds | None
 
     def voice_registry(self) -> VoiceRegistry:
@@ -35,8 +34,8 @@ class MusicArgs(NamedTuple):
     def voice_args_by_name(self, name: str):
         return self.voice_registry()[name]
 
-    def voice_combinations(self) -> VoiceCombinationRegistry:
-        return self.cmb.registry
+    def voice_combinations(self) -> VoiceMixRegistry:
+        return self.mix.registry
 
     def channels(self) -> Channels:
         return self.voice.channels_map_func()

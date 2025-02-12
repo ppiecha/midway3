@@ -17,3 +17,7 @@ def test_tick_float():
 
 def test_tick_tick():
     assert Tick(1).add(Tick(2)) == 3
+
+
+def test_tick():
+    assert Tick(96).add(4) == 192

@@ -1,6 +1,3 @@
-import functools
-import itertools
-from collections.abc import Iterator
 from functools import wraps
 from typing import Iterable, NamedTuple
 
@@ -9,15 +6,12 @@ from src.app.backend.types import (
     Notes,
     Event,
     VoiceArgs,
-    MidiEvent,
-    EventKind,
     DEFAULT,
     VoiceRegistry,
     SoundfontsMapFunc,
     ChannelsMapFunc,
-    MidiEventsWithTick,
 )
-from src.app.utils.iter import replace_all, peek
+from src.app.utils.iter import replace_all
 from src.app.utils.logger import get_console_logger
 
 logger = get_console_logger(__name__)
@@ -34,51 +28,6 @@ def events_fn(notes: Notes) -> Iterable[Event]:
         notes = notes._replace(controls=replace_all(lambda x: None, notes.keys))
     for note in zip(*notes):
         yield Event(*note)
-
-
-# def args_wrapper(tick, channel, program_, u2t):
-#     def add_midi_event(events_with_tick: MidiEventsWithTick, event: Event) -> MidiEventsWithTick:
-#         return MidiEventsWithTick(
-#             tick=events_with_tick.tick.add(event.time),
-#             midi_events=itertools.chain(events_with_tick.midi_events, midi_events_from_event(event))
-#         )
-#
-#     def midi_events_from_event(event: Event):
-#         time, key, duration, velocity, program, control = event
-#         yield MidiEvent(EventKind.NOTE, tick, channel, key, u2t(duration), velocity, program, control)
-#         if program:
-#             yield MidiEvent(EventKind.PROGRAM, tick, channel, None, None, None, program, None)
-#         if control:
-#             yield MidiEvent(EventKind.CONTROL, tick, channel, None, None, None, None, control)
-#
-#     def midi_events_from_events2(events: Iterable[Event]) -> Iterable[MidiEvent]:
-#         res = peek(iterator=events)
-#         if not res:
-#             return
-#         _, events = res
-#         initial = MidiEventsWithTick(
-#             tick=tick,
-#             midi_events=(event for event in [MidiEvent(EventKind.PROGRAM, tick, channel, None, None, None, program_, None)])
-#         )
-#         return functools.reduce(add_midi_event, events, initial)
-#
-#     def midi_events_from_events(events: Iterator[Event]) -> Iterator[MidiEvent]:
-#         res = peek(iterator=events)
-#         if not res:
-#             return
-#         _, events = res
-#         nonlocal tick
-#         yield MidiEvent(EventKind.PROGRAM, tick, channel, None, None, None, program_, None)
-#         for time, key, duration, velocity, program, control in events:
-#             yield MidiEvent(EventKind.NOTE, tick, channel, key, u2t(duration), velocity, program, control)
-#             if program:
-#                 yield MidiEvent(EventKind.PROGRAM, tick, channel, None, None, None, program, None)
-#             if control:
-#                 yield MidiEvent(EventKind.CONTROL, tick, channel, None, None, None, None, control)
-#             tick += u2t(time)
-#             midi_events_from_events.tick = tick
-#
-#     return midi_events_from_events2
 
 
 class Voice(NamedTuple):

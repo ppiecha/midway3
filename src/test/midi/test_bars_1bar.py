@@ -5,7 +5,7 @@ from src.app.backend.types import Notes, EventKind, MidiEvent, Program, Tick
 from src.app.midi.music import voice_args_events, midi_events
 from src.app.midi.music_args import MusicArgs
 from src.app.decorators.player import player
-from src.app.decorators.voice_combination import cmb
+from src.app.decorators.voice_mix import mix
 
 
 @voice.channels
@@ -44,12 +44,12 @@ def track2():
     )
 
 
-@cmb()
+@mix()
 def sequence1():
     return track1, track2
 
 
-@cmb()
+@mix()
 def sequence2():
     return (
         (track1, track2),
@@ -64,7 +64,7 @@ def music():
 
 @pytest.fixture(name="music_args")
 def fixture_music_args():
-    return MusicArgs(player=player, voice=voice, cmb=cmb, soundfont_ids={"default": 0})
+    return MusicArgs(player=player, voice=voice, mix=mix, soundfont_ids={"default": 0})
 
 
 def test_bars(music_args):
@@ -88,6 +88,16 @@ def test_bars(music_args):
             key=72,
             duration=Tick(384),
             velocity=100,
+            program=None,
+            control=None,
+        ),
+        MidiEvent(
+            kind=EventKind.META_END_OF_USER_SEQ,
+            tick=Tick(384),
+            channel=1,
+            key=None,
+            duration=None,
+            velocity=None,
             program=None,
             control=None,
         ),
@@ -118,6 +128,16 @@ def test_bars(music_args):
             key=60,
             duration=Tick(288),
             velocity=100,
+            program=None,
+            control=None,
+        ),
+        MidiEvent(
+            kind=EventKind.META_END_OF_USER_SEQ,
+            tick=Tick(384),
+            channel=2,
+            key=None,
+            duration=None,
+            velocity=None,
             program=None,
             control=None,
         ),

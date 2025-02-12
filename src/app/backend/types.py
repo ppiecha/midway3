@@ -2,7 +2,7 @@ from __future__ import annotations
 from collections.abc import Iterable, Callable
 from enum import Enum
 from functools import partial
-from typing import NamedTuple, TYPE_CHECKING
+from typing import NamedTuple
 from src.app.backend.units import unit2tick
 
 DEFAULT = "default"
@@ -21,7 +21,7 @@ type SoundfontIds = dict[str, int]
 type NotesFunc = Callable[[], Notes]
 type CombinationFunc = Callable[[], Iterable[NotesFunc]]
 type VoiceRegistry = dict[str, VoiceArgs]
-type VoiceCombinationRegistry = dict[str, CombinationFunc]
+type VoiceMixRegistry = dict[str, CombinationFunc]
 
 
 type UnitToTick = Callable[[float], Tick]
@@ -32,7 +32,7 @@ class Tick(int):
         match other:
             case Tick():
                 return Tick(self + int(other))
-            case float() | int():  # TimeUnit
+            case float() | int():
                 return Tick(self + self.tick_from_unit(other))
             case _:
                 raise TypeError(f"{type(other)} not supported")
@@ -42,6 +42,8 @@ class EventKind(str, Enum):
     NOTE = "note"
     PROGRAM = "program"
     CONTROL = "control"
+    META_END_OF_BAR = "meta_end_of_bar"
+    META_END_OF_USER_SEQ = "meta_end_of_user_seq"
 
 
 class Notes(NamedTuple):

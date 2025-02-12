@@ -14,7 +14,6 @@ disable=
     too-many-instance-attributes,
     too-many-statements,
     protected-access,
-    no-self-use,
     invalid-name,
     no-name-in-module
 
