@@ -30,7 +30,7 @@ class MidiSequencer:
         self.sequencer = Sequencer(time_scale=ticks_per_second(self.player_args.bpm, self.tpb), use_system_timer=False)
         self.my_seq_id = self.sequencer.register_client("mycallback", self.seq_callback)
         self.synth_seq_id = None
-        self.events_iter = None
+        self.events_iterator = None
         self.fs = None
 
     def play(self):
@@ -39,7 +39,7 @@ class MidiSequencer:
         self.synth_seq_id = self.sequencer.register_fluidsynth(self.fs)
         self.fs.start(driver="dsound")
         tick = Tick(self.sequencer.get_tick())
-        self.events_iter = midi_events(music_args=self.music_args, tick=tick)
+        self.events_iterator = midi_events(music_args=self.music_args, tick=tick)
         self.schedule_next_bar(tick)
 
     def pause(self):
@@ -67,12 +67,13 @@ class MidiSequencer:
     def schedule_next_bar(self, tick: Tick):
         logger.debug(f"schedule_next_bar: {tick}")
         next_start = None
-        # Takewhile event is not meta - for instance repeat
-        for e in self.events_iter:
+        # Take while event is not meta - for instance repeat
+        for e in self.events_iterator:
             logger.debug(f"{tick} {e}")
             self.sequencer_event(e)
-            if e.kind == EventKind.META_END_OF_BAR:
+            if e.kind == EventKind.META_END_OF_USER_SEQ:
                 next_start = e.tick
+                self.events_iterator = midi_events(music_args=self.music_args, tick=next_start)
 
         logger.debug(f"tt {next_start} {Tick(next_start - self.tpb)}")
         self.schedule_next_callback(Tick(next_start - self.tpb))

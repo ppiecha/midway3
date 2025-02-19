@@ -2,7 +2,7 @@ from __future__ import annotations
 from collections.abc import Iterable, Callable
 from enum import Enum
 from functools import partial
-from typing import NamedTuple
+from typing import NamedTuple, Generator
 from src.app.backend.units import unit2tick
 
 DEFAULT = "default"
@@ -19,9 +19,12 @@ type Soundfonts = dict[str, str]
 type SoundfontsMapFunc = Callable[[], Soundfonts]
 type SoundfontIds = dict[str, int]
 type NotesFunc = Callable[[], Notes]
-type CombinationFunc = Callable[[], Iterable[NotesFunc]]
-type VoiceRegistry = dict[str, VoiceArgs]
-type VoiceMixRegistry = dict[str, CombinationFunc]
+type Funcs = NotesFunc | MixFunc | ChainFunc
+type MixFunc = Callable[[], Iterable[Funcs]]
+type ChainFunc = Callable[[], Iterable[Funcs]]
+type TrackRegistry = dict[str, TrackArgs]
+type TrackMixRegistry = dict[str, MixFunc]
+type TrackChainRegistry = dict[str, ChainFuncFunc]
 
 
 type UnitToTick = Callable[[float], Tick]
@@ -44,6 +47,12 @@ class EventKind(str, Enum):
     CONTROL = "control"
     META_END_OF_BAR = "meta_end_of_bar"
     META_END_OF_USER_SEQ = "meta_end_of_user_seq"
+
+
+class FunctionType(str, Enum):
+    TRACK = "track"
+    MIX = "mix"
+    CHAIN = "chain"
 
 
 class Notes(NamedTuple):
@@ -86,7 +95,7 @@ class MidiEvent(NamedTuple):
     control: Control | None = None
 
 
-type MidiEvents = Iterable[MidiEvent]
+type Gen[T] = Generator[T, None, None]
 
 
 class MidiEventsWithTick(NamedTuple):
@@ -94,7 +103,7 @@ class MidiEventsWithTick(NamedTuple):
     midi_events: Iterable[MidiEvent]
 
 
-class VoiceArgs(NamedTuple):
+class TrackArgs(NamedTuple):
     name: str
     channel_name: str
     notes_fn: NotesFunc
@@ -108,7 +117,7 @@ class PlayerArgs(NamedTuple):
     soundfont_path: str
     soundfont: str
     ticks_per_beat: int
-    music: Callable
+    music_func: Callable
 
     @property
     def tick_from_unit(self):

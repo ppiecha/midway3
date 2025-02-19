@@ -1,47 +1,50 @@
 from __future__ import annotations
 
-import typing
-from collections.abc import Iterable
-from typing import NamedTuple
+from typing import NamedTuple, Callable, TYPE_CHECKING
 
 from src.app.backend.types import (
     SoundfontIds,
-    VoiceRegistry,
-    VoiceMixRegistry,
+    TrackRegistry,
+    TrackMixRegistry,
     Channels,
     UnitToTick,
     PlayerArgs,
     Soundfonts,
     Tick,
-    NotesFunc,
+    TrackChainRegistry,
 )
+from src.app.decorators.track_chain import TrackChain
 
-if typing.TYPE_CHECKING:
+if TYPE_CHECKING:
     from src.app.decorators.player import Player
-    from src.app.decorators.voice_mix import VoiceMix
-    from src.app.decorators.voice import Voice
+    from src.app.decorators.track_mix import TrackMix
+    from src.app.decorators.track import Track
 
 
 class MusicArgs(NamedTuple):
     player: Player
-    voice: Voice
-    mix: VoiceMix
+    track: Track
+    mix: TrackMix
+    chain: TrackChain
     soundfont_ids: SoundfontIds | None
 
-    def voice_registry(self) -> VoiceRegistry:
-        return self.voice.registry
+    def track_registry(self) -> TrackRegistry:
+        return self.track.registry
 
-    def voice_args_by_name(self, name: str):
-        return self.voice_registry()[name]
+    def track_args_by_name(self, name: str):
+        return self.track_registry()[name]
 
-    def voice_combinations(self) -> VoiceMixRegistry:
+    def mix_registry(self) -> TrackMixRegistry:
         return self.mix.registry
 
+    def chain_registry(self) -> TrackChainRegistry:
+        return self.chain.registry
+
     def channels(self) -> Channels:
-        return self.voice.channels_map_func()
+        return self.track.channels_map_func()
 
     def soundfonts(self) -> Soundfonts:
-        return self.voice.soundfonts_map_func()
+        return self.track.soundfonts_map_func()
 
     def player_args(self) -> PlayerArgs:
         return self.player.args[0]
@@ -49,9 +52,6 @@ class MusicArgs(NamedTuple):
     def u2t(self) -> UnitToTick:
         return self.player_args().tick_from_unit
 
-    def music(self) -> Iterable[NotesFunc]:
+    def music_func(self) -> Callable:
         setattr(Tick, "tick_from_unit", self.player_args().tick_from_unit)
-        msc = self.player_args().music()
-        if isinstance(msc, Iterable):
-            raise TypeError("Iterable not supported yet")
-        return msc()
+        return self.player_args().music_func

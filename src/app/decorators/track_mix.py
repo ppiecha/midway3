@@ -2,7 +2,7 @@ from functools import wraps
 from typing import NamedTuple
 
 from src.app.backend.types import (
-    VoiceMixRegistry,
+    TrackMixRegistry,
 )
 
 from src.app.utils.logger import get_console_logger
@@ -10,9 +10,9 @@ from src.app.utils.logger import get_console_logger
 logger = get_console_logger(__name__)
 
 
-class VoiceMix(NamedTuple):
+class TrackMix(NamedTuple):
 
-    registry: VoiceMixRegistry = {}
+    registry: TrackMixRegistry = {}
 
     def __call__(self):
 
@@ -29,4 +29,4 @@ class VoiceMix(NamedTuple):
         return decorator
 
 
-mix = VoiceMix()
+mix = TrackMix()

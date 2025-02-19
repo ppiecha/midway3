@@ -1,13 +1,13 @@
 import pytest
 
-from src.app.decorators.voice import voice
+from src.app.decorators.track import track
 from src.app.backend.types import Notes, EventKind, MidiEvent, Program, Tick
 from src.app.midi.music_args import MusicArgs
 from src.app.decorators.player import player
-from src.app.decorators.voice_mix import mix, events_from_sequences
+from src.app.decorators.track_mix import mix, events_from_sequences
 
 
-@voice.channels
+@track.channels
 def channels_map():
     return {
         "drums": 10,
@@ -16,7 +16,7 @@ def channels_map():
     }
 
 
-@voice.soundfonts
+@track.soundfonts
 def soundfonts_map():
     return {
         "default": "soundfont.sf2",
@@ -24,7 +24,7 @@ def soundfonts_map():
 
 
 @pytest.fixture(name="track1")
-@voice(channel="track1", soundfont="default", bank=0, preset=0)
+@track(channel="track1", soundfont="default", bank=0, preset=0)
 def track1():
     return Notes(
         times=(1,),
@@ -34,7 +34,7 @@ def track1():
 
 
 @pytest.fixture(name="track2")
-@voice(channel="track2", soundfont="default", bank=0, preset=12)
+@track(channel="track2", soundfont="default", bank=0, preset=12)
 def track2():
     return Notes(
         times=(4, 4 / 3),
@@ -63,7 +63,7 @@ def music():
 
 @pytest.fixture(name="music_args")
 def fixture_music_args():
-    return MusicArgs(player=player, track=voice, sequence=mix, soundfont_ids={"default": 0})
+    return MusicArgs(player=player, track=track, sequence=mix, soundfont_ids={"default": 0})
 
 
 def test_bars(music_args):

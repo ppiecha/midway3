@@ -18,7 +18,7 @@ def file_content(file_name: str) -> str:
     imports = "from itertools import count"
 
     channels = (
-        "@voice.channels",
+        "@track.channels",
         "def channels_map():",
         "\treturn {",
         '\t\t"drums":    10,',
@@ -28,11 +28,11 @@ def file_content(file_name: str) -> str:
     )
     channels = "\n".join(channels)
 
-    soundfonts = ("@voice.soundfonts", "def soundfonts_map():", "\treturn {", '\t\t"default": "soundfont.sf2",', "}")
+    soundfonts = ("@track.soundfonts", "def soundfonts_map():", "\treturn {", '\t\t"default": "soundfont.sf2",', "}")
     soundfonts = "\n".join(soundfonts)
 
     drums = (
-        '@voice(channel="drums", soundfont = "default", bank=128, preset=0)',
+        '@track(channel="drums", soundfont = "default", bank=128, preset=0)',
         "def drums1():",
         "\treturn Notes(",
         "\t\ttimes      = (8 ,) * 8,",
@@ -44,7 +44,7 @@ def file_content(file_name: str) -> str:
     drums = "\n".join(drums)
 
     bass = (
-        '@voice(channel="bass", soundfont = "default", bank=0, preset=24)',
+        '@track(channel="bass", soundfont = "default", bank=0, preset=24)',
         "def bass1():",
         "\treturn Notes(",
         "\t\ttimes      = (4 ,) * 4,",
@@ -56,7 +56,7 @@ def file_content(file_name: str) -> str:
     bass = "\n".join(bass)
 
     piano = (
-        '@voice(channel="piano", soundfont = "default", bank=0, preset=0)',
+        '@track(channel="piano", soundfont = "default", bank=0, preset=0)',
         "def piano1():",
         "\treturn Notes(",
         "\t\ttimes      = (4 ,) * 4,",
@@ -85,9 +85,10 @@ def file_content(file_name: str) -> str:
     # sequence2 = "\n".join(sequence2)
 
     player = (
+        "@chain()",
         '@player(bpm=60, soundfont_path="../..", soundfont="soundfont.sf2", ticks_per_beat=96, start_part=1, end_part=0)',
         "def music():",
-        "\treturn mix1 ",
+        "\treturn mix1, ",
     )
     player = "\n".join(player)
 

@@ -1,15 +1,16 @@
 from functools import wraps
-from typing import Iterable, NamedTuple
+from typing import NamedTuple
 
 from src.app.backend.types import (
     DEFAULT_VELOCITY,
     Notes,
     Event,
-    VoiceArgs,
+    TrackArgs,
     DEFAULT,
-    VoiceRegistry,
+    TrackRegistry,
     SoundfontsMapFunc,
     ChannelsMapFunc,
+    Gen,
 )
 from src.app.utils.iter import replace_all
 from src.app.utils.logger import get_console_logger
@@ -17,7 +18,7 @@ from src.app.utils.logger import get_console_logger
 logger = get_console_logger(__name__)
 
 
-def events_fn(notes: Notes) -> Iterable[Event]:
+def events_fn(notes: Notes) -> Gen[Event]:
     if not notes or not notes.keys:
         return
     if not notes.velocities:
@@ -30,14 +31,14 @@ def events_fn(notes: Notes) -> Iterable[Event]:
         yield Event(*note)
 
 
-class Voice(NamedTuple):
+class Track(NamedTuple):
 
-    registry: VoiceRegistry = {}
+    registry: TrackRegistry = {}
     mappings = {}
 
     def __call__(self, channel: str, soundfont: str = DEFAULT, bank: int = 0, preset: int = 0):
         def decorator(fn):
-            self.registry[fn.__name__] = VoiceArgs(
+            self.registry[fn.__name__] = TrackArgs(
                 name=fn.__name__, channel_name=channel, notes_fn=fn, soundfont=soundfont, bank=bank, preset=preset
             )
 
@@ -76,4 +77,4 @@ class Voice(NamedTuple):
         return inner
 
 
-voice = Voice()
+track = Track()

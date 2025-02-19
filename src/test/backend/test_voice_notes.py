@@ -1,6 +1,6 @@
 import pytest
 
-from src.app.decorators.voice import events_fn
+from src.app.decorators.track import events_fn
 from src.app.backend.types import Event
 
 
