@@ -12,6 +12,7 @@ from src.app.backend.types import (
     Soundfonts,
     Tick,
     TrackChainRegistry,
+    Meter,
 )
 from src.app.decorators.track_chain import TrackChain
 
@@ -27,6 +28,7 @@ class MusicArgs(NamedTuple):
     mix: TrackMix
     chain: TrackChain
     soundfont_ids: SoundfontIds | None
+    meter: Meter = Meter()
 
     def track_registry(self) -> TrackRegistry:
         return self.track.registry

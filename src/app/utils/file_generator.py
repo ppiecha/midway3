@@ -86,7 +86,7 @@ def file_content(file_name: str) -> str:
 
     player = (
         "@chain()",
-        '@player(bpm=60, soundfont_path="../..", soundfont="soundfont.sf2", ticks_per_beat=96, start_part=1, end_part=0)',
+        '@player(bpm=60, soundfont_path="../..", soundfont="soundfont.sf2", ticks_per_beat=96, numerator=4, denominator=4, repeat=1)',
         "def music():",
         "\treturn mix1, ",
     )

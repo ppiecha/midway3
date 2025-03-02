@@ -45,6 +45,7 @@ class EventKind(str, Enum):
     NOTE = "note"
     PROGRAM = "program"
     CONTROL = "control"
+    META_END_OF_BEAT = "meta_end_of_beat"
     META_END_OF_BAR = "meta_end_of_bar"
     META_END_OF_USER_SEQ = "meta_end_of_user_seq"
 
@@ -73,6 +74,11 @@ class Program(NamedTuple):
 class Control(NamedTuple):
     control: int
     value: int
+
+
+class Meter(NamedTuple):
+    numerator: int = 4
+    denominator: int = 4
 
 
 class Event(NamedTuple):
@@ -117,8 +123,15 @@ class PlayerArgs(NamedTuple):
     soundfont_path: str
     soundfont: str
     ticks_per_beat: int
+    numerator: int
+    denominator: int
+    repeat: int
     music_func: Callable
 
     @property
     def tick_from_unit(self):
         return partial(unit2tick, bpm=self.bpm, ticks_per_beat=self.ticks_per_beat)
+
+
+class ActorExit(Exception):
+    pass

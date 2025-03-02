@@ -18,11 +18,23 @@ class Player(NamedTuple):
         soundfont_path: str,
         soundfont: str,
         ticks_per_beat: int = 96,
-        start_part: int = 1,
-        end_part: int | None = None,
+        numerator=4,
+        denominator=4,
+        repeat=1,
     ):
         def decorator(fn):
-            self.args.append(PlayerArgs(bpm, soundfont_path, soundfont, ticks_per_beat, fn))
+            self.args.append(
+                PlayerArgs(
+                    bpm=bpm,
+                    soundfont_path=soundfont_path,
+                    soundfont=soundfont,
+                    ticks_per_beat=ticks_per_beat,
+                    numerator=numerator,
+                    denominator=denominator,
+                    repeat=repeat,
+                    music_func=fn,
+                )
+            )
 
             @wraps(fn)
             def inner(*args_, **kwargs):

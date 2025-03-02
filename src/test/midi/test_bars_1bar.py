@@ -57,10 +57,11 @@ def sequence2():
         (track2, track1),
     )
 
+
 @mix()
-@player(bpm=60, soundfont_path="../..", soundfont="soundfont.sf2", ticks_per_beat=96, start_part=1, end_part=0)
+@player(bpm=60, soundfont_path="../..", soundfont="soundfont.sf2", ticks_per_beat=96)
 def music():
-    return sequence1,
+    return (sequence1,)
 
 
 @pytest.fixture(name="music_args")
